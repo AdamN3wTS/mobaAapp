@@ -1,9 +1,10 @@
 using System;
+using api.Models;
 
 namespace api.Client;
 
 public interface IRiotClient
 {
-    public Task<T?> GetAsync<T>(string url, CancellationToken ct);
+    public Task<ResponseRiotClientDto<T?>> GetAsync<T>(string url, CancellationToken ct);
 
 }

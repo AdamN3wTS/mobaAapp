@@ -20,8 +20,9 @@ public class AccountInfoTest : IAccountInfoTest
             var clientResponse = await _riotClient.GetAsync<RiotAccount?>($"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{name}/{tag}",ct);
             var response =  new ResponseDto<RiotAccount?>()
             {
-                Data=clientResponse,
-                Success=true,
+                StatusCode=clientResponse.StatusCode,
+                Data=clientResponse.Data,
+                Success=clientResponse.StatusCode==System.Net.HttpStatusCode.OK,
                 Message="FAJNIE:)"
             };
             return response;

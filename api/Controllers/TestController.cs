@@ -1,3 +1,5 @@
+using System.Net;
+using api.Helpers;
 using api.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +19,8 @@ namespace api.Controllers
         public async Task<IActionResult> AccountInfo(string gameName,string tagLine,CancellationToken ct)
         {
             var serviceResponse = await _accTest.GetRiotAccountAsync(gameName,tagLine,ct);
-            return Ok(serviceResponse);
+            return StatusCodeHelper.SafeResponse(this,serviceResponse);
+            
         }
     }
 }
