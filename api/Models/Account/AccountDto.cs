@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using api.Models.Rank;
 
 namespace api.Models.Account
 {
@@ -25,5 +26,6 @@ namespace api.Models.Account
         public string TagLine { get; set; } = string.Empty;
         public int SummonerLevel { get; set; }
         public List<string> RecentMatchIds { get; set; } = new List<string>();
+        public List<RankDto?> Ranks {get;set;} = new List<RankDto?>();
     }
 }

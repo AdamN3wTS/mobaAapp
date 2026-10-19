@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using api.Helpers;
 using api.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,12 +21,7 @@ namespace api.Controllers
         {
             var result = await _accountInfoService.GetFullAccountInfoAsync(nick, tag);
 
-            if (!result.IsSuccess)
-            {
-                return NotFound(result);
-            }
-
-            return Ok(result);
+            return StatusCodeHelper.SafeResponse(this,result);
         }
     }
 }

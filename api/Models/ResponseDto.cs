@@ -9,4 +9,9 @@ namespace api.Models
         public string? Message { get; set; }
         public T? Data { get; set; }
     }
+    public class ResponseRiotDto<T>
+    {
+        public HttpStatusCode StatusCode {get;set;}
+        public T? Data {get;set;}
+    }
 }
