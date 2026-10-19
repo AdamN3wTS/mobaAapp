@@ -1,26 +1,31 @@
-using System.Net;
-using api.Helpers;
+using System.Threading.Tasks;
 using api.IServices;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
-    [Route("api/test")]
     [ApiController]
+    [Route("api/test")]
     public class TestController : ControllerBase
     {
-        private readonly IAccountInfoTest _accTest;
-        public TestController(IAccountInfoTest accountInfoTest)
+        private readonly IAccountInfoTest _accountInfoService;
+
+        public TestController(IAccountInfoTest accountInfoService)
         {
-            _accTest=accountInfoTest;
+            _accountInfoService = accountInfoService;
         }
-        [HttpGet("account-info/{gameName}/{tagLine}")]
-        public async Task<IActionResult> AccountInfo(string gameName,string tagLine,CancellationToken ct)
+
+        [HttpGet("account-info/{nick}/{tag}")]
+        public async Task<IActionResult> GetAccountInfo(string nick, string tag)
         {
-            var serviceResponse = await _accTest.GetRiotAccountAsync(gameName,tagLine,ct);
-            return StatusCodeHelper.SafeResponse(this,serviceResponse);
-            
+            var result = await _accountInfoService.GetFullAccountInfoAsync(nick, tag);
+
+            if (!result.IsSuccess)
+            {
+                return NotFound(result);
+            }
+
+            return Ok(result);
         }
     }
 }
