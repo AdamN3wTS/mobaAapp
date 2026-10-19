@@ -1,11 +1,11 @@
-using System;
+using System.Threading.Tasks;
 using api.Models;
 using api.Models.Account;
 
-namespace api.IServices;
-
-public interface IAccountInfoTest
+namespace api.IServices
 {
-    public Task<ResponseDto<RiotAccount?>> GetRiotAccountAsync(string name,string tag,CancellationToken ct);
-
+    public interface IAccountInfoTest
+    {
+        Task<ResponseDto<FullAccountInfoDto>> GetFullAccountInfoAsync(string gameName, string tagLine);
+    }
 }

@@ -1,36 +1,55 @@
 using System;
-using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using api.Models;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using api.Models.Account;
+using Microsoft.Extensions.Configuration;
 
-namespace api.Client;
-
-public class RiotClient(HttpClient httpClient) : IRiotClient
+namespace api.Client
 {
-    
-    
-    public async Task<ResponseRiotClientDto<T?>> GetAsync<T>(string url, CancellationToken ct)
+    public class RiotClient : IRiotClient
     {
-        string apikey = Environment.GetEnvironmentVariable("RIOT_API_KEY")!;
-        httpClient.DefaultRequestHeaders.Add("X-Riot-Token",apikey);
-   
-        var response = await httpClient.GetAsync(url,ct);
-        if (response.StatusCode != HttpStatusCode.OK)
+        private readonly HttpClient _httpClient;
+        private readonly string _apiKey;
+
+        public RiotClient(HttpClient httpClient, IConfiguration configuration)
         {
-            Console.WriteLine(response.StatusCode);
-            var responseDtoNotValid = new ResponseRiotClientDto<T?>()
-            {
-                StatusCode=response.StatusCode,
-            };
-            return responseDtoNotValid;
+            _httpClient = httpClient;
+            // Pobieranie ze zmiennych środowiskowych DotNetEnv / Systemu lub appsettings
+            _apiKey = Environment.GetEnvironmentVariable("RIOT_API_KEY") 
+                      ?? configuration["RIOT_API_KEY"] 
+                      ?? string.Empty;
         }
-        var responseBody = await response.Content.ReadFromJsonAsync<T>();
-        var responseDto = new ResponseRiotClientDto<T?>()
+
+        public async Task<AccountDto?> GetAccountByRiotIdAsync(string gameName, string tagLine)
         {
-            StatusCode=response.StatusCode,
-            Data=responseBody
-        };
-        return responseDto;
+            var url = $"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{Uri.EscapeDataString(gameName)}/{Uri.EscapeDataString(tagLine)}?api_key={_apiKey}";
+            
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) return null;
+
+            return await response.Content.ReadFromJsonAsync<AccountDto>();
+        }
+
+        public async Task<SummonerDto?> GetSummonerByPuuidAsync(string region, string puuid)
+        {
+            var url = $"https://{region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}?api_key={_apiKey}";
+            
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) return null;
+
+            return await response.Content.ReadFromJsonAsync<SummonerDto>();
+        }
+
+        public async Task<List<string>> GetRecentMatchIdsAsync(string region, string puuid, int count = 10)
+        {
+            var url = $"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}&api_key={_apiKey}";
+            
+            var response = await _httpClient.GetAsync(url);
+            if (!response.IsSuccessStatusCode) return new List<string>();
+
+            return await response.Content.ReadFromJsonAsync<List<string>>() ?? new List<string>();
+        }
     }
 }
