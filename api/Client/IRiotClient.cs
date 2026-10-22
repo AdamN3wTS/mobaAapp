@@ -14,6 +14,8 @@ namespace api.Client
         Task<ResponseRiotDto<List<string>?>> GetRecentMatchIdsAsync(string region, string puuid, int count = 10);
         Task<ResponseRiotDto<List<RankDto?>>> GetRanksByPuuidAsync(string region, string puuid);
         Task<ResponseRiotDto<RegionDto?>> GetActiveRegionByPuuidAsync(string puuid);
+        Task<ResponseRiotDto<List<RankDto>?>> GetSummonersByRegionQueueTierDivisionAsync(string region,string queue,string tier,string division,int page);
+
 
     }
 }
