@@ -5,6 +5,8 @@ using api.IServices;
 using api.Services;
 using Npgsql;
 using Microsoft.EntityFrameworkCore;
+using api.IDbServices;
+using api.DbServices;
 
 DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,8 @@ builder.Services.AddDbContext<AppDbContext>(o=>o.UseNpgsql(connectionString));
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAccountInfoTest,AccountInfoTest>();
 builder.Services.AddScoped<ICrawlerService,CrawlerService>();
+builder.Services.AddScoped<ICrawlPlayerDbService,CrawlPlayerDbService>();
+
 
 builder.Services.AddHttpClient<IRiotClient,RiotClient>();
 

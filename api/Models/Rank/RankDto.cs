@@ -4,6 +4,7 @@ namespace api.Models.Rank;
 
 public class RankDto
 {
+    public string Puuid {get;set;}
     public string QueueType {get;set;}
     public string Tier {get;set;}
     public string Rank {get;set;}

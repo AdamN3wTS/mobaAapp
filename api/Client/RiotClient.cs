@@ -57,5 +57,7 @@ namespace api.Client
             GetAsync<List<RankDto?>>($"https://{region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}");
         public Task<ResponseRiotDto<RegionDto?>> GetActiveRegionByPuuidAsync(string puuid) =>
             GetAsync<RegionDto?>($"https://europe.api.riotgames.com/riot/account/v1/region/by-game/lol/by-puuid/{puuid}");
+         public Task<ResponseRiotDto<List<RankDto>?>> GetSummonersByRegionQueueTierDivisionAsync(string region,string queue,string tier,string division,int page) =>
+            GetAsync<List<RankDto>?>($"https://{region}.api.riotgames.com/lol/league/v4/entries/{queue}/{tier}/{division}?page={page}");
     }
 }
