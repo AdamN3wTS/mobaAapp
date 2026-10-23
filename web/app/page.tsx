@@ -1,6 +1,13 @@
+import SearchComponent from "@/components/SearchComponent";
 
 export default function Home() {
   return (
-    <div>STRONA GŁOWNA tutaj wyszukiwarka i jakies pierdoly top jg mid bot supp po koeli kto ma najwiekszy winrate narazie przygotwac pola po prostu bo nie ma jescze zrobioncyh danych ani nizcego :/ jak najwiecej robic componentow zeby latwo bylo edytowac etc</div>
+    <div className="w-screen h-screen">
+      <div className="w-full h-full flex border">
+        <div className="flex w-full h-full justify-center items-center">
+          <SearchComponent></SearchComponent>
+        </div>
+      </div>
+    </div>
   );
 }
