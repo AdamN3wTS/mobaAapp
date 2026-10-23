@@ -1,6 +1,7 @@
 using System;
 using api.Client;
 using api.DbModels;
+using api.Helpers;
 using api.IDbServices;
 using api.IServices;
 
@@ -12,11 +13,14 @@ public class CrawlerService : ICrawlerService
 
     private readonly IRiotClient _riotClient;
     private readonly ICrawlPlayerDbService _crawlPlayerDbService;
-    public CrawlerService(ILogger<CrawlerService> logger,IRiotClient riotClient,ICrawlPlayerDbService crawlPlayerDbService)
+    private readonly IMatchDbService _matchDbService;
+
+    public CrawlerService(IMatchDbService matchDbService,ILogger<CrawlerService> logger,IRiotClient riotClient,ICrawlPlayerDbService crawlPlayerDbService)
     {
         _logger=logger;
         _riotClient=riotClient;
         _crawlPlayerDbService=crawlPlayerDbService;
+        _matchDbService=matchDbService;
     }
     public async Task<List<CrawlPlayer>> GetPlayerList(string region,string tier,string queue,string division,int page,CancellationToken ct)
     {
@@ -55,6 +59,34 @@ public class CrawlerService : ICrawlerService
         catch(Exception ex)
         {
             return new List<CrawlPlayer>();
+        }
+    }
+    public async Task InsertMatches(CancellationToken ct)
+    {
+        var players = await _crawlPlayerDbService.GetActivePlayersToInsertMatchesAsync(ct);
+        var matchesIds = new List<string>();
+        foreach(var player in players)
+        {
+            var matches = await _riotClient.GetMatchIdsForCrawlerAsync("europe",player.Puuid,50);
+            if(matches.StatusCode==System.Net.HttpStatusCode.OK)
+            {
+                var crawled = await _crawlPlayerDbService.SetCrawlTimeByPuuidAsync(player.Puuid,ct);
+                matchesIds.AddRange(matches.Data);
+            }
+        }
+        var uniqueMatchesIds = matchesIds.Distinct().ToList();
+
+        foreach(var item in uniqueMatchesIds)
+        {
+            var isExist = await _matchDbService.IsMatchExistByMatchIdAsync(item,ct);
+            if (isExist)
+            {
+                continue;
+            }
+            var matchInfo = await _riotClient.GetMatchAsync(item);
+            var dtoMapper = MatchMapper.ToEntity(matchInfo.Data);
+            var addService = await _matchDbService.AddMatchAsync(dtoMapper,ct);
+            
         }
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using api.Helpers;
+using api.IDbServices;
 using api.IServices;
 using api.Services;
 
@@ -26,9 +28,21 @@ public class Crawler : BackgroundService
                 {
                     await using(var scope = _scopeFactory.CreateAsyncScope()){
                         var _crawlerService = scope.ServiceProvider.GetRequiredService<ICrawlerService>();
-                        var players = await _crawlerService.GetPlayerList("eun1","PLATINUM","RANKED_SOLO_5x5","II",page,stoppingToken);
+                        var _playerDbService = scope.ServiceProvider.GetRequiredService<ICrawlPlayerDbService>();
+
+                        var playerCount = await _playerDbService.HowManyPlayersWhoDoesntCrowledOrCrowledLogTimeAgoAsync(stoppingToken);
+                        if(playerCount<10)
+                        {
+                            var randomRank = RandomRankGenerator.GenerateRandomRank();
+                            var players = await _crawlerService.GetPlayerList("eun1",randomRank.Tier,"RANKED_SOLO_5x5",randomRank.Division,page,stoppingToken);
+                        }
+                        await _crawlerService.InsertMatches(stoppingToken);
                         await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); 
-                        page++;
+                        var playerCount2 = await _playerDbService.HowManyPlayersWhoDoesntCrowledOrCrowledLogTimeAgoAsync(stoppingToken);
+                        if(playerCount<10)
+                        {
+                            page++;
+                        }
                     }
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
