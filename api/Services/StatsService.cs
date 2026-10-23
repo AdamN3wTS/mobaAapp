@@ -5,6 +5,7 @@ using api.DbModels;
 using api.IServices;
 using api.Models;
 using api.Models.Stats;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 
@@ -37,8 +38,8 @@ public class StatsService : IStatsService
             .OrderByDescending(x => x.BanRate)
             .ToListAsync(ct);
         var rows = await _dbContext.championStatsInfos
-            .Where(s => s.PickRate >= 0.0019 && s.CreatedAt == latest)   
-            .Select(s => new { s.TeamPosition, s.ChampionId,s.ChampionName, s.WinRate, s.PickRate })
+            .Where(s => s.Games >= 2 && s.CreatedAt == latest)   
+            .Select(s => new { s.TeamPosition, s.ChampionId,s.ChampionName, s.WinRate, s.PickRate,s.Games })
             .ToListAsync(ct);
 
         string[] order = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"];
@@ -56,7 +57,8 @@ public class StatsService : IStatsService
                         ChampionName= r.ChampionName,
                         ChampionId = r.ChampionId,
                         WinRate = r.WinRate,
-                        PickRate = r.PickRate
+                        PickRate = r.PickRate,
+                        Games=r.Games
                     })
                     .ToList()
             })
@@ -122,6 +124,7 @@ public class StatsService : IStatsService
                 TeamPosition = item.TeamPosition,
                 ChampionId = item.ChampionId,
                 ChampionName = item.ChampionName,
+                Games=item.Games,
                 CreatedAt =now
             };
             statsList.Add(statsInfo);

@@ -42,6 +42,9 @@ namespace api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("Games")
+                        .HasColumnType("integer");
+
                     b.Property<double>("PickRate")
                         .HasColumnType("double precision");
 

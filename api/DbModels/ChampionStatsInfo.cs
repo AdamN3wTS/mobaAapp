@@ -7,6 +7,8 @@ public class ChampionStatsInfo
     public Guid Id {get;set;}
     public int ChampionId {get;set;}
     public string ChampionName {get;set;}
+    public int Games {get;set;} =0;
+
     public double WinRate {get;set;}
     public double PickRate {get;set;}
     public double BanRate {get;set;}

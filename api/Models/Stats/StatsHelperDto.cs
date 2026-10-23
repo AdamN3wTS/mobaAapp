@@ -25,6 +25,7 @@ public class StatsPositionHelperDto
 }
 public class StatsChampionHelperDto
 {
+    public int Games{get;set;}
     public string ChampionName {get;set;}
     public int ChampionId {get;set;}
     public double WinRate {get;set;}
