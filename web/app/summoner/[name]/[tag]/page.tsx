@@ -1,3 +1,4 @@
+"use client"
 import { useParams } from "next/navigation";
 
 export default function Page() {
@@ -11,6 +12,6 @@ export default function Page() {
     // przyspieszy bardoz i np komponenty per podstrona tpypu dla tej podstorny 
     // beda w  folderze componnts/summoner
     return (
-        <div>Strona gracza korzystasz z endpointu /api jakis tam zaraz dokumentacje sie dokonczy</div>
+        <div> {name} {tag}</div>
     );
 }
