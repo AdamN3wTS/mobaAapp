@@ -1,0 +1,73 @@
+1. GET /api/Player/{gameName}/{tagLine}
+Pobiera podstawowe dane gracza oraz jego rangi we wszystkich trybach.
+
+Parametry ścieżki:
+
+gameName (string, wymagane) – Nick gracza (np. Faker).
+
+tagLine (string, wymagane) – Tag bez znaku # (np. KR1).
+
+Struktura odpowiedzi (200 OK):
+
+JSON
+{
+  "puuid": "sample-puuid-12345-abcde",
+  "gameName": "Faker",
+  "tagLine": "KR1",
+  "profileIconId": 548,
+  "summonerLevel": 154,
+  "ranks": [
+    {
+      "queueType": "RANKED_SOLO_5x5",
+      "tier": "GOLD",
+      "rank": "I",
+      "leaguePoints": 75,
+      "wins": 45,
+      "losses": 35,
+      "winRate": 56.25,
+      "hotStreak": true
+    }
+  ]
+}
+2. GET /api/Player/{puuid}/matches
+Pobiera listy meczów gracza na podstawie puuid z obsługą paginacji.
+
+Parametry ścieżki:
+
+puuid (string, wymagane) – Identyfikator puuid uzyskany z pierwszego endpointu.
+
+Query String (opcjonalne):
+
+page (int, domyślnie: 1) – Numer strony.
+
+pageSize (int, domyślnie: 20) – Liczba elementów na stronę (odpowiednik take).
+
+Struktura odpowiedzi (200 OK):
+
+JSON
+{
+  "page": 1,
+  "pageSize": 20,
+  "totalItems": 100,
+  "matches": [
+    {
+      "matchId": "EUN1_3456789012",
+      "isWin": true,
+      "gameDurationInSeconds": 1845,
+      "queueType": "Ranked Solo",
+      "lpChange": 22,
+      "gameCreationTimestamp": "2026-03-30T14:30:00+00:00",
+      "championName": "Ahri",
+      "championId": 103,
+      "stats": {
+        "kills": 8,
+        "deaths": 2,
+        "assists": 11,
+        "kda": 9.5,
+        "totalMinionsKilled": 195,
+        "damageDealtToChampions": 24500,
+        "visionScore": 32
+      }
+    }
+  ]
+}
