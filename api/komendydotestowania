@@ -1,4 +1,3 @@
-http://localhost:5074/api/Player/sample-puuid-12345-abcde/matches
 http://localhost:5074/api/Player/Baazigar/SRK
 http://localhost:5074/api/test/Baazigar/SRK
-http://localhost:5074/api/Player/sample-puuid-12345-abcde/matches?page=3&pageSize=21
+http://localhost:5074/api/Player/F0I5Y0WSF9Wy82xmIof_S28L2xkNZHyKRVS0v-ewqPn_TQiFlhNnAjP2EMRbGI6tJAzvEAzo1cqhYw/matches?page=1&pageSize=20
