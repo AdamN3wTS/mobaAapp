@@ -23,12 +23,15 @@ builder.Services.AddScoped<IAccountInfoTest,AccountInfoTest>();
 builder.Services.AddScoped<ICrawlerService,CrawlerService>();
 builder.Services.AddScoped<ICrawlPlayerDbService,CrawlPlayerDbService>();
 builder.Services.AddScoped<IMatchDbService,MatchDbService>();
+builder.Services.AddScoped<IPlayerService,PlayerService>();
+
 builder.Services.AddScoped<IStatsService,StatsService>();
 
 builder.Services.AddSingleton<RiotRateLimiter>();
 
 
 builder.Services.AddHttpClient<IRiotClient,RiotClient>();
+builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()));
 
 if (Environment.GetEnvironmentVariable("CRAWLER_ENABLED") == "true")
 {
@@ -38,5 +41,6 @@ if (Environment.GetEnvironmentVariable("CRAWLER_ENABLED") == "true")
 }
 
 var app = builder.Build();
+app.UseCors();
 app.MapControllers();
 app.Run();

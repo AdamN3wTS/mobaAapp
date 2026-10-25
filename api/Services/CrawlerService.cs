@@ -19,6 +19,7 @@ public class CrawlerService : ICrawlerService
     {
         _logger=logger;
         _riotClient=riotClient;
+        
         _crawlPlayerDbService=crawlPlayerDbService;
         _matchDbService=matchDbService;
     }
@@ -29,7 +30,7 @@ public class CrawlerService : ICrawlerService
             _logger.LogInformation("Statring GetPlayerList");
             _logger.LogInformation($"Statring _riotClient.GetSummonersByRegionQueueTierDivisionAsync with params region:{region},tier:{tier},queue:{queue},division:{division},page:{page}");
 
-            var clientResponse = await _riotClient.GetSummonersByRegionQueueTierDivisionAsync(region,queue,tier,division,page);
+            var clientResponse = await _riotClient.GetSummonersByRegionQueueTierDivisionAsync(region,queue,tier,division,page,true);
             _logger.LogInformation($"_riotClient.GetSummonersByRegionQueueTierDivisionAsync StatusCode: {clientResponse.StatusCode}");
 
             if (clientResponse.StatusCode != System.Net.HttpStatusCode.OK)
@@ -67,7 +68,7 @@ public class CrawlerService : ICrawlerService
         var matchesIds = new List<string>();
         foreach(var player in players)
         {
-            var matches = await _riotClient.GetMatchIdsForCrawlerAsync("europe",player.Puuid,50);
+            var matches = await _riotClient.GetMatchIdsForCrawlerAsync("europe",player.Puuid,50,IsBcg:true);
             if(matches.StatusCode==System.Net.HttpStatusCode.OK)
             {
                 var crawled = await _crawlPlayerDbService.SetCrawlTimeByPuuidAsync(player.Puuid,ct);
@@ -83,7 +84,7 @@ public class CrawlerService : ICrawlerService
             {
                 continue;
             }
-            var matchInfo = await _riotClient.GetMatchAsync(item);
+            var matchInfo = await _riotClient.GetMatchAsync(item,true);
             var dtoMapper = MatchMapper.ToEntity(matchInfo.Data);
             var addService = await _matchDbService.AddMatchAsync(dtoMapper,ct);
             

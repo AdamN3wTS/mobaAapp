@@ -38,7 +38,7 @@ public class StatsService : IStatsService
             .OrderByDescending(x => x.BanRate)
             .ToListAsync(ct);
         var rows = await _dbContext.championStatsInfos
-            .Where(s => s.Games >= 2 && s.CreatedAt == latest)   
+            .Where(s => s.Games >= 50 && s.CreatedAt == latest)   
             .Select(s => new { s.TeamPosition, s.ChampionId,s.ChampionName, s.WinRate, s.PickRate,s.Games })
             .ToListAsync(ct);
 
