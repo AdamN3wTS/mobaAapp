@@ -1,0 +1,13 @@
+dobra jak cos wszytkei zapytania o GRACZA robimy po puuid czyli takie ID
+i jest endpoint do riot
+/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}
+gdzie gameName to nick
+a tagline to tag
+
+i dostneimy cos tpyu
+{
+    "puuid": "Zi5oG3qHeVw5hWasWd6I3u4A_nnFAeUKkICrxery4rwXXRmp2feysUarAFx2XzpuAeCPiydrvZG9jg",
+    "gameName": "CewuEL131",
+    "tagLine": "2115"
+}
+i potem juz jazda
