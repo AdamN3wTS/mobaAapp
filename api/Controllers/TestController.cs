@@ -12,10 +12,12 @@ namespace api.Controllers
     {
         private readonly IAccountInfoTest _accountInfoService;
         private readonly ICrawlPlayerDbService _crawlDbService;
-        public TestController(IAccountInfoTest accountInfoService,ICrawlPlayerDbService crawlPlayerDbService)
+        private readonly IChampionService _championService;
+        public TestController(IAccountInfoTest accountInfoService,ICrawlPlayerDbService crawlPlayerDbService,IChampionService championService)
         {
             _crawlDbService=crawlPlayerDbService;
             _accountInfoService = accountInfoService;
+            _championService=championService;
         }
 
         [HttpGet("account-info/{nick}/{tag}")]
@@ -29,6 +31,12 @@ namespace api.Controllers
         public async Task<IActionResult> GetPlayers(CancellationToken cancellationToken)
         {
             var result = await _crawlDbService.GetPlayersAsync(cancellationToken);
+            return Ok(result);
+        }
+        [HttpGet("champion/{championName}/{teamPosition}")]
+        public async Task<IActionResult> GetChampion(string championName,string teamPosition,CancellationToken cancellationToken)
+        {
+            var result = await _championService.GetChampionStatsAsync(championName,teamPosition,cancellationToken);
             return Ok(result);
         }
     }
