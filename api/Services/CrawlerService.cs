@@ -73,8 +73,11 @@ public class CrawlerService : ICrawlerService
             {
                 var crawled = await _crawlPlayerDbService.SetCrawlTimeByPuuidAsync(player.Puuid,ct);
                 matchesIds.AddRange(matches.Data);
+                
             }
+            
         }
+        
         var uniqueMatchesIds = matchesIds.Distinct().ToList();
 
         foreach(var item in uniqueMatchesIds)
@@ -86,8 +89,32 @@ public class CrawlerService : ICrawlerService
             }
             var matchInfo = await _riotClient.GetMatchAsync(item,true);
             var dtoMapper = MatchMapper.ToEntity(matchInfo.Data);
-            var addService = await _matchDbService.AddMatchAsync(dtoMapper,ct);
             
+            var addService = await _matchDbService.AddMatchAsync(dtoMapper,ct);
+            var robicTo= false;
+            if (robicTo==true){
+            var playersIds = dtoMapper.Participants.Select(p=>p.Puuid).ToList();
+            
+            var selectedIds = await _crawlPlayerDbService.GetExistingPuuidListAsync(playersIds,ct); 
+            var selectedPlayers = playersIds.Where(p=>!selectedIds.Contains(p)).ToList();
+            var crawls = new List<CrawlPlayer>();
+            foreach(var i in selectedPlayers)
+            {
+                
+                var pl = await _riotClient.GetRanksByPuuidAsync("eun1",i,true);
+                var CrawlPlayer = new CrawlPlayer
+                {
+                    Puuid=i,
+                    LastCrawledAt=null,
+                    Platform="eun1",
+                    Tier=pl.Data.Where(p=>p.QueueType=="RANKED_SOLO_5x5").Select(p=>p.Tier).FirstOrDefault() ?? "nothing"
+                };
+                crawls.Add(CrawlPlayer);
+            }
+            _logger.LogInformation($"Nowych graczy poza baza: {crawls.Count()} ");
+
+            var addServiceSecundo = await _crawlPlayerDbService.AddListPlayersAsync(crawls,ct);
+            }
         }
     }
 }

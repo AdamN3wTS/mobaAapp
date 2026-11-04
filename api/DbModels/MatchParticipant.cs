@@ -24,6 +24,6 @@ public class MatchParticipant
     public int Cs { get; set; }                    
 
     public int Spell1Id { get; set; }              
-    public int Spell2Id { get; set; }             
+    public int Spell2Id { get; set; }
     public List<int> ItemIds { get; set; } = new(); 
 }

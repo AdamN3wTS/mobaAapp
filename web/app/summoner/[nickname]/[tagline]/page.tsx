@@ -1,5 +1,6 @@
 import { FaUserCircle } from 'react-icons/fa';
 import { getPlayer, getMatches } from '@/lib/api';
+import ChampionIcon from '@/components/ChampionIcon';
 
 interface SummonerPageProps {
   params: Promise<{ nickname: string; tagline: string }>;
@@ -47,12 +48,15 @@ export default async function SummonerPage({ params }: SummonerPageProps) {
           <h2 className="text-2xl font-semibold mb-6">Historia Meczów</h2>
           <div className="space-y-3">
             {history?.matches?.map((m: any) => (
-              <div key={m.matchId} className={`bg-neutral-800/50 p-4 rounded-xl flex justify-between items-center border-l-4 hover:bg-neutral-800 transition-colors ${m.isWin ? 'border-blue-500' : 'border-red-500'}`}>
-                <div>
-                  <div className={`font-bold ${m.isWin ? 'text-blue-400' : 'text-red-400'}`}>{m.isWin ? 'Zwycięstwo' : 'Porażka'}</div>
-                  <div className="text-sm text-neutral-400">{m.queueType} · {m.championName} · {time(m.gameDurationInSeconds)}</div>
+              <div key={m.matchId} className={`bg-neutral-800/50 p-4 rounded-xl flex justify-between items-center gap-4 border-l-4 hover:bg-neutral-800 transition-colors ${m.isWin ? 'border-blue-500' : 'border-red-500'}`}>
+                <div className="flex items-center gap-4 min-w-0">
+                  <ChampionIcon championId={m.championId} name={m.championName} size={56} className="rounded-xl" />
+                  <div className="min-w-0">
+                    <div className={`font-bold ${m.isWin ? 'text-blue-400' : 'text-red-400'}`}>{m.isWin ? 'Zwycięstwo' : 'Porażka'}</div>
+                    <div className="text-sm text-neutral-400 truncate">{m.queueType} · {m.championName} · {time(m.gameDurationInSeconds)}</div>
+                  </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <div className="font-bold text-lg">{m.stats.kills} / {m.stats.deaths} / {m.stats.assists}</div>
                   <div className="text-sm text-neutral-400">KDA · {m.stats.totalMinionsKilled} CS</div>
                 </div>

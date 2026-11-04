@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getStats } from '@/lib/api';
+import ChampionIcon from '@/components/ChampionIcon';
 
 const tabs = [['ALL', 'Ogólnie'], ['TOP', 'Top'], ['JUNGLE', 'Jungle'], ['MIDDLE', 'Mid'], ['BOTTOM', 'Bot'], ['UTILITY', 'Support']];
 const lists = [['Win Rate', 'winRate'], ['Pick Rate', 'pickRate'], ['Ban Rate', 'banRate']];
@@ -52,8 +53,12 @@ export default function StatsBoard() {
             <h3 className="font-semibold text-blue-400 mb-3">Top 5 {title}</h3>
             <ol className="space-y-2">
               {top5(source(k), k).map((c: any, i: number) => (
-                <li key={c.championId} className="flex justify-between text-sm">
-                  <span><span className="text-neutral-500 mr-2">{i + 1}.</span>{c.championName}</span>
+                <li key={c.championId} className="flex justify-between items-center text-sm gap-2">
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span className="text-neutral-500 w-4">{i + 1}.</span>
+                    <ChampionIcon championId={c.championId} name={c.championName} size={28} />
+                    <span className="truncate">{c.championName}</span>
+                  </span>
                   <span className="font-bold">{pct(c[k])}</span>
                 </li>
               ))}

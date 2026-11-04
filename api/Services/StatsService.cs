@@ -38,7 +38,7 @@ public class StatsService : IStatsService
             .OrderByDescending(x => x.BanRate)
             .ToListAsync(ct);
         var rows = await _dbContext.championStatsInfos
-            .Where(s => s.Games >= 50 && s.CreatedAt == latest)   
+            .Where(s => s.Games >= 80 && s.CreatedAt == latest)   
             .Select(s => new { s.TeamPosition, s.ChampionId,s.ChampionName, s.WinRate, s.PickRate,s.Games })
             .ToListAsync(ct);
 
@@ -79,7 +79,7 @@ public class StatsService : IStatsService
     {
         _logger.LogInformation("Start generowania statystyk");
 
-        var basicStats = await _dbContext.matchParticipants.Where(p => p.TeamPosition != "")
+        var basicStats = await _dbContext.matchParticipants.Where(p => p.TeamPosition != "" )
             .GroupBy(p => new { p.ChampionId, p.TeamPosition, p.ChampionName })
             .Select(g => new
             {

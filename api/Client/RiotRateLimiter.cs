@@ -6,7 +6,7 @@ public class RiotRateLimiter
 {
     private readonly SemaphoreSlim _lock = new(1, 1);
     private DateTime _lastRequest = DateTime.MinValue;
-    private static readonly TimeSpan MinInterval = TimeSpan.FromMilliseconds(1250);
+    private static readonly TimeSpan MinInterval = TimeSpan.FromMilliseconds(1350);
 
     public async Task WaitAsync()
     {
