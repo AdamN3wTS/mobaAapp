@@ -79,18 +79,6 @@ public class StatsService : IStatsService
     {
         _logger.LogInformation("Start generowania statystyk");
 
-        var basicStats = await _dbContext.matchParticipants.Where(p => p.TeamPosition != "" )
-            .GroupBy(p => new { p.ChampionId, p.TeamPosition, p.ChampionName })
-            .Select(g => new
-            {
-                ChampionId = g.Key.ChampionId,
-                TeamPosition = g.Key.TeamPosition,
-                ChampionName = g.Key.ChampionName,
-                Games = g.Count(),
-                Wins = g.Count(x => x.IsWin == true)
-            }).ToListAsync(ct);
-        _logger.LogInformation("Zgrupowano {Count} kombinacji champion/rola", basicStats.Count);
-
         var totalMatches = await _dbContext.matches.CountAsync(ct);
         _logger.LogInformation("Liczba meczów: {TotalMatches}", totalMatches);
 
@@ -100,39 +88,168 @@ public class StatsService : IStatsService
             return;
         }
 
-        var bans = await _dbContext.matchBans.Where(p => p.ChampionId != -1)
-            .GroupBy(p => new { p.ChampionId }).Select(g => new
+        var participants = await _dbContext.matchParticipants
+            .AsNoTracking()
+            .Where(p => p.TeamPosition != "")
+            .Select(p => new
             {
-                ChampionId = g.Key.ChampionId,
+                p.ChampionId,
+                p.ChampionName,
+                p.TeamPosition,
+                p.IsWin,
+                p.Spell1Id,
+                p.Spell2Id,
+                p.ItemIds,
+                p.KeystoneId,
+                p.PrimaryStyleId,
+                p.SubStyleId,
+                p.OffensePerk,
+                p.FlexPerk,
+                p.DefensePerk,
+                RunePerkIds = p.Runes.Select(r => r.PerkId).ToList()
+            })
+            .ToListAsync(ct);
+
+        _logger.LogInformation("Pobrano {Count} uczestników", participants.Count);
+
+        var bans = await _dbContext.matchBans
+            .Where(p => p.ChampionId != -1)
+            .GroupBy(p => p.ChampionId)
+            .Select(g => new
+            {
+                ChampionId = g.Key,
                 Bans = g.Select(b => b.MatchId).Distinct().Count()
-            }).ToDictionaryAsync(x => x.ChampionId, x => x.Bans, ct);
+            })
+            .ToDictionaryAsync(x => x.ChampionId, x => x.Bans, ct);
+
         _logger.LogInformation("Zbanowanych championów: {Count}", bans.Count);
 
-        var statsList = new List<ChampionStatsInfo>();
         var now = DateTime.UtcNow;
-        foreach (var item in basicStats)
+        var statsList = new List<ChampionStatsInfo>();
+
+        foreach (var group in participants.GroupBy(p => new { p.ChampionId, p.TeamPosition }))
         {
-            var banRate = (double)bans.GetValueOrDefault(item.ChampionId) / totalMatches;
-            var winRate = (double)item.Wins / item.Games;
-            var PickRate = (double)item.Games / totalMatches;
-            var statsInfo = new ChampionStatsInfo()
+            var games = group.Count();
+            var wins = group.Count(x => x.IsWin);
+
+            var statsInfo = new ChampionStatsInfo
             {
                 Id = Guid.NewGuid(),
-                BanRate = banRate,
-                PickRate = PickRate,
-                WinRate = winRate,
-                TeamPosition = item.TeamPosition,
-                ChampionId = item.ChampionId,
-                ChampionName = item.ChampionName,
-                Games=item.Games,
-                CreatedAt =now
+                ChampionId = group.Key.ChampionId,
+                ChampionName = group.First().ChampionName,
+                TeamPosition = group.Key.TeamPosition,
+                Games = games,
+                WinRate = (double)wins / games,
+                PickRate = (double)games / totalMatches,
+                BanRate = (double)bans.GetValueOrDefault(group.Key.ChampionId) / totalMatches,
+                CreatedAt = now
+                
             };
+
+            // Spelle
+            statsInfo.Spells = group
+                .GroupBy(p => new
+                {
+                    A = Math.Min(p.Spell1Id, p.Spell2Id),
+                    B = Math.Max(p.Spell1Id, p.Spell2Id)
+                })
+                .Select(g => new ChampionStatsSpells
+                {
+                    Id = Guid.NewGuid(),
+                    Spell1Id = g.Key.A,
+                    Spell2Id = g.Key.B,
+                    PickRate = Math.Round(g.Count() * 100.0 / games, 2)
+                })
+                .OrderByDescending(s => s.PickRate)
+                .ToList();
+
+            // Itemy
+            statsInfo.Items = group
+                .SelectMany(p => p.ItemIds
+                    .Where(id => id != 0)
+                    .Distinct()
+                    .Select(id => new { ItemId = id, p.IsWin }))
+                .GroupBy(x => x.ItemId)
+                .Select(g => new ChampionStatsItems
+                {
+                    Id = Guid.NewGuid(),
+                    ItemId = g.Key,
+                    Games = g.Count(),
+                    WinRate = Math.Round(g.Count(x => x.IsWin) * 100.0 / g.Count(), 2),
+                    PickRate = Math.Round(g.Count() * 100.0 / games, 2)
+                })
+                .OrderByDescending(i => i.PickRate)
+                .ToList();
+            var withRunes = group.Where(p => p.KeystoneId != 0).ToList();
+            var runeGames = withRunes.Count;
+
+            if (runeGames > 0)
+            {
+                // Strony run
+                statsInfo.RunePages = withRunes
+                    .GroupBy(p => new { p.KeystoneId, p.PrimaryStyleId, p.SubStyleId })
+                    .Select(g => new ChampionStatsRunePage
+                    {
+                        Id = Guid.NewGuid(),
+                        KeystoneId = g.Key.KeystoneId,
+                        PrimaryStyleId = g.Key.PrimaryStyleId,
+                        SubStyleId = g.Key.SubStyleId,
+                        Games = g.Count(),
+                        WinRate = Math.Round(g.Count(x => x.IsWin) * 100.0 / g.Count(), 2),
+                        PickRate = Math.Round(g.Count() * 100.0 / runeGames, 2)
+                    })
+                    .OrderByDescending(r => r.Games)
+                    .Take(10)
+                    .ToList();
+
+                // Pojedyncze runy
+                statsInfo.Runes = withRunes
+                    .SelectMany(p => p.RunePerkIds.Select(perkId => new { PerkId = perkId, p.IsWin }))
+                    .GroupBy(x => x.PerkId)
+                    .Select(g => new ChampionStatsRune
+                    {
+                        Id = Guid.NewGuid(),
+                        PerkId = g.Key,
+                        Games = g.Count(),
+                        WinRate = Math.Round(g.Count(x => x.IsWin) * 100.0 / g.Count(), 2),
+                        PickRate = Math.Round(g.Count() * 100.0 / runeGames, 2)
+                    })
+                    .OrderByDescending(r => r.Games)
+                    .ToList();
+
+                // Odłamki
+                statsInfo.StatsShards = withRunes
+                    .GroupBy(p => new { p.OffensePerk, p.FlexPerk, p.DefensePerk })
+                    .Select(g => new ChampionStatsShard
+                    {
+                        Id = Guid.NewGuid(),
+                        OffensePerk = g.Key.OffensePerk,
+                        FlexPerk = g.Key.FlexPerk,
+                        DefensePerk = g.Key.DefensePerk,
+                        Games = g.Count(),
+                        WinRate = Math.Round(g.Count(x => x.IsWin) * 100.0 / g.Count(), 2),
+                        PickRate = Math.Round(g.Count() * 100.0 / runeGames, 2)
+                    })
+                    .OrderByDescending(s => s.Games)
+                    .Take(5)
+                    .ToList();
+            }
             statsList.Add(statsInfo);
         }
+
         _logger.LogInformation("Przygotowano {Count} wierszy statystyk", statsList.Count);
+
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
 
         await _dbContext.championStatsInfos.AddRangeAsync(statsList, ct);
         await _dbContext.SaveChangesAsync(ct);
-        _logger.LogInformation("Statystyki zapisane");
+
+        var deleted = await _dbContext.championStatsInfos
+            .Where(s => s.CreatedAt < now)
+            .ExecuteDeleteAsync(ct);
+
+        await transaction.CommitAsync(ct);
+
+        _logger.LogInformation("Statystyki zapisane, usunięto {Deleted} starych wpisów", deleted);
     }
 }

@@ -39,5 +39,11 @@ namespace api.Controllers
             var result = await _championService.GetChampionStatsAsync(championName,teamPosition,cancellationToken);
             return Ok(result);
         }
+        [HttpGet("champion/{championName}")]
+        public async Task<IActionResult> GetChampionPositions(string championName, CancellationToken ct)
+        {
+            var result = await _championService.GetChampionPositionsAsync(championName, ct);
+            return StatusCode((int)result.StatusCode, result);
+        }
     }
 }

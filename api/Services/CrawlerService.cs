@@ -62,59 +62,92 @@ public class CrawlerService : ICrawlerService
             return new List<CrawlPlayer>();
         }
     }
+    private async Task DiscoverNewPlayersAsync(Match match, CancellationToken ct)
+    {
+        var playersIds = match.Participants.Select(p => p.Puuid).ToList();
+        var existingIds = await _crawlPlayerDbService.GetExistingPuuidListAsync(playersIds, ct);
+        var newIds = playersIds.Where(p => !existingIds.Contains(p)).ToList();
+
+        var crawls = new List<CrawlPlayer>();
+        foreach (var puuid in newIds)
+        {
+            var ranks = await _riotClient.GetRanksByPuuidAsync("eun1", puuid, true);
+            if (ranks.Data == null) continue;
+
+            crawls.Add(new CrawlPlayer
+            {
+                Puuid = puuid,
+                LastCrawledAt = null,
+                Platform = "eun1",
+                Tier = ranks.Data
+                    .Where(r => r.QueueType == "RANKED_SOLO_5x5")
+                    .Select(r => r.Tier)
+                    .FirstOrDefault() ?? "nothing"
+            });
+        }
+
+        _logger.LogInformation("Nowych graczy poza bazą: {Count}", crawls.Count);
+
+        if (crawls.Count > 0)
+            await _crawlPlayerDbService.AddListPlayersAsync(crawls, ct);
+    }
     public async Task InsertMatches(CancellationToken ct)
     {
-        var players = await _crawlPlayerDbService.GetActivePlayersToInsertMatchesAsync(ct);
+        var players = await _crawlPlayerDbService.GetActivePlayersToInsertMatchesAsync("eun1", ct);
         var matchesIds = new List<string>();
-        foreach(var player in players)
-        {
-            var matches = await _riotClient.GetMatchIdsForCrawlerAsync("europe",player.Puuid,50,IsBcg:true);
-            if(matches.StatusCode==System.Net.HttpStatusCode.OK)
-            {
-                var crawled = await _crawlPlayerDbService.SetCrawlTimeByPuuidAsync(player.Puuid,ct);
-                matchesIds.AddRange(matches.Data);
-                
-            }
-            
-        }
-        
-        var uniqueMatchesIds = matchesIds.Distinct().ToList();
 
-        foreach(var item in uniqueMatchesIds)
+        foreach (var player in players)
         {
-            var isExist = await _matchDbService.IsMatchExistByMatchIdAsync(item,ct);
-            if (isExist)
+            ct.ThrowIfCancellationRequested();
+
+            var matches = await _riotClient.GetMatchIdsForCrawlerAsync("europe", player.Puuid, player.LastCrawledAt, IsBcg: true);
+            if (matches.StatusCode != System.Net.HttpStatusCode.OK || matches.Data == null)
             {
+                _logger.LogWarning("Nie udało się pobrać meczów dla {Puuid}: {Status}", player.Puuid, matches.StatusCode);
                 continue;
             }
-            var matchInfo = await _riotClient.GetMatchAsync(item,true);
-            var dtoMapper = MatchMapper.ToEntity(matchInfo.Data);
-            
-            var addService = await _matchDbService.AddMatchAsync(dtoMapper,ct);
-            var robicTo= false;
-            if (robicTo==true){
-            var playersIds = dtoMapper.Participants.Select(p=>p.Puuid).ToList();
-            
-            var selectedIds = await _crawlPlayerDbService.GetExistingPuuidListAsync(playersIds,ct); 
-            var selectedPlayers = playersIds.Where(p=>!selectedIds.Contains(p)).ToList();
-            var crawls = new List<CrawlPlayer>();
-            foreach(var i in selectedPlayers)
-            {
-                
-                var pl = await _riotClient.GetRanksByPuuidAsync("eun1",i,true);
-                var CrawlPlayer = new CrawlPlayer
-                {
-                    Puuid=i,
-                    LastCrawledAt=null,
-                    Platform="eun1",
-                    Tier=pl.Data.Where(p=>p.QueueType=="RANKED_SOLO_5x5").Select(p=>p.Tier).FirstOrDefault() ?? "nothing"
-                };
-                crawls.Add(CrawlPlayer);
-            }
-            _logger.LogInformation($"Nowych graczy poza baza: {crawls.Count()} ");
 
-            var addServiceSecundo = await _crawlPlayerDbService.AddListPlayersAsync(crawls,ct);
+            await _crawlPlayerDbService.SetCrawlTimeByPuuidAsync(player.Puuid, ct);
+            matchesIds.AddRange(matches.Data);
+        }
+
+        var uniqueMatchesIds = matchesIds.Distinct().ToList();
+
+        var existing = await _matchDbService.GetExistingMatchIdsAsync(uniqueMatchesIds, ct);
+        var toFetch = uniqueMatchesIds.Where(id => !existing.Contains(id)).ToList();
+
+        _logger.LogInformation("{Unique} unikalnych ID, {New} nowych do pobrania", uniqueMatchesIds.Count, toFetch.Count);
+
+        var added = 0;
+        foreach (var matchId in toFetch)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            try
+            {
+                var matchInfo = await _riotClient.GetMatchAsync(matchId, true);
+                if (matchInfo.StatusCode != System.Net.HttpStatusCode.OK || matchInfo.Data == null)
+                {
+                    _logger.LogWarning("Nie udało się pobrać meczu {MatchId}: {Status}", matchId, matchInfo.StatusCode);
+                    continue;
+                }
+
+                var match = MatchMapper.ToEntity(matchInfo.Data);
+                await _matchDbService.AddMatchAsync(match, ct);
+                added++;
+
+                // await DiscoverNewPlayersAsync(match, ct);  // wyłączone +/-10 dodatkowych requestów na mecz
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Błąd przy zapisie meczu {MatchId}", matchId);
             }
         }
+
+        _logger.LogInformation("Dodano {Added} nowych meczów", added);
     }
 }

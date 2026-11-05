@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getStats } from '@/lib/api';
 import ChampionIcon from '@/components/ChampionIcon';
+import Link from 'next/link';
 
 const tabs = [['ALL', 'Ogólnie'], ['TOP', 'Top'], ['JUNGLE', 'Jungle'], ['MIDDLE', 'Mid'], ['BOTTOM', 'Bot'], ['UTILITY', 'Support']];
 const lists = [['Win Rate', 'winRate'], ['Pick Rate', 'pickRate'], ['Ban Rate', 'banRate']];
@@ -49,10 +50,18 @@ export default function StatsBoard() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {lists.map(([title, k]) => (
+          
           <div key={k} className="bg-neutral-800/50 rounded-xl p-4">
             <h3 className="font-semibold text-blue-400 mb-3">Top 5 {title}</h3>
             <ol className="space-y-2">
               {top5(source(k), k).map((c: any, i: number) => (
+                <Link
+                  href={
+                    tab.toLocaleLowerCase() === 'all'
+                      ? `/champion/${c.championName.toLowerCase()}`
+                      : `/champion/${c.championName.toLowerCase()}/${tab.toLowerCase()}`
+                  }
+                >                
                 <li key={c.championId} className="flex justify-between items-center text-sm gap-2">
                   <span className="flex items-center gap-2 min-w-0">
                     <span className="text-neutral-500 w-4">{i + 1}.</span>
@@ -61,6 +70,7 @@ export default function StatsBoard() {
                   </span>
                   <span className="font-bold">{pct(c[k])}</span>
                 </li>
+                </Link>
               ))}
             </ol>
           </div>

@@ -60,6 +60,155 @@ namespace api.Migrations
                     b.ToTable("championStatsInfos");
                 });
 
+            modelBuilder.Entity("api.DbModels.ChampionStatsItems", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChampionStatsInfoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Games")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("PickRate")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("WinRate")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChampionStatsInfoId");
+
+                    b.ToTable("championStatsItems");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsRune", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChampionStatsInfoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Games")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PerkId")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("PickRate")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("WinRate")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChampionStatsInfoId");
+
+                    b.ToTable("ChampionStatsRune");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsRunePage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChampionStatsInfoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Games")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("KeystoneId")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("PickRate")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("PrimaryStyleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubStyleId")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("WinRate")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChampionStatsInfoId");
+
+                    b.ToTable("ChampionStatsRunePage");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsShard", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChampionStatsInfoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DefensePerk")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FlexPerk")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Games")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OffensePerk")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("PickRate")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("WinRate")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChampionStatsInfoId");
+
+                    b.ToTable("ChampionStatsShard");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsSpells", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChampionStatsInfoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("PickRate")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("Spell1Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Spell2Id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChampionStatsInfoId");
+
+                    b.ToTable("championStatsSpells");
+                });
+
             modelBuilder.Entity("api.DbModels.CrawlPlayer", b =>
                 {
                     b.Property<string>("Puuid")
@@ -145,6 +294,12 @@ namespace api.Migrations
                     b.Property<int>("Deaths")
                         .HasColumnType("integer");
 
+                    b.Property<int>("DefensePerk")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FlexPerk")
+                        .HasColumnType("integer");
+
                     b.Property<string>("GameName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -156,6 +311,9 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("integer[]");
 
+                    b.Property<int>("KeystoneId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Kills")
                         .HasColumnType("integer");
 
@@ -166,6 +324,12 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("OffensePerk")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PrimaryStyleId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Puuid")
                         .IsRequired()
                         .HasColumnType("text");
@@ -174,6 +338,9 @@ namespace api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Spell2Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubStyleId")
                         .HasColumnType("integer");
 
                     b.Property<string>("TagLine")
@@ -192,6 +359,95 @@ namespace api.Migrations
                     b.HasIndex("MatchId");
 
                     b.ToTable("matchParticipants");
+                });
+
+            modelBuilder.Entity("api.DbModels.ParticipantRunes", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MatchParticipantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("PerkId")
+                        .HasColumnType("integer");
+
+                    b.Property<byte>("Slot")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("StyleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Var1")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Var2")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Var3")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MatchParticipantId");
+
+                    b.ToTable("participantRunes");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsItems", b =>
+                {
+                    b.HasOne("api.DbModels.ChampionStatsInfo", "ChampionStatsInfo")
+                        .WithMany("Items")
+                        .HasForeignKey("ChampionStatsInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChampionStatsInfo");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsRune", b =>
+                {
+                    b.HasOne("api.DbModels.ChampionStatsInfo", "ChampionStatsInfo")
+                        .WithMany("Runes")
+                        .HasForeignKey("ChampionStatsInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChampionStatsInfo");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsRunePage", b =>
+                {
+                    b.HasOne("api.DbModels.ChampionStatsInfo", "ChampionStatsInfo")
+                        .WithMany("RunePages")
+                        .HasForeignKey("ChampionStatsInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChampionStatsInfo");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsShard", b =>
+                {
+                    b.HasOne("api.DbModels.ChampionStatsInfo", "ChampionStatsInfo")
+                        .WithMany("StatsShards")
+                        .HasForeignKey("ChampionStatsInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChampionStatsInfo");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsSpells", b =>
+                {
+                    b.HasOne("api.DbModels.ChampionStatsInfo", "ChampionStatsInfo")
+                        .WithMany("Spells")
+                        .HasForeignKey("ChampionStatsInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChampionStatsInfo");
                 });
 
             modelBuilder.Entity("api.DbModels.MatchBan", b =>
@@ -216,11 +472,40 @@ namespace api.Migrations
                     b.Navigation("Match");
                 });
 
+            modelBuilder.Entity("api.DbModels.ParticipantRunes", b =>
+                {
+                    b.HasOne("api.DbModels.MatchParticipant", "MatchParticipant")
+                        .WithMany("Runes")
+                        .HasForeignKey("MatchParticipantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MatchParticipant");
+                });
+
+            modelBuilder.Entity("api.DbModels.ChampionStatsInfo", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("RunePages");
+
+                    b.Navigation("Runes");
+
+                    b.Navigation("Spells");
+
+                    b.Navigation("StatsShards");
+                });
+
             modelBuilder.Entity("api.DbModels.Match", b =>
                 {
                     b.Navigation("Bans");
 
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("api.DbModels.MatchParticipant", b =>
+                {
+                    b.Navigation("Runes");
                 });
 #pragma warning restore 612, 618
         }

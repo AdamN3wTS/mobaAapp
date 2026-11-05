@@ -38,7 +38,8 @@ namespace api.Client
             {
                 if (IsBcg)
                 {
-                    await _rateLimiter.WaitAsync();
+                    var region = new Uri(url).Host.Split('.')[0];  
+                    await _rateLimiter.WaitAsync(region);
                 }
 
                 using var response = await _httpClient.GetAsync(url);
@@ -70,30 +71,30 @@ namespace api.Client
         }
 
         public Task<ResponseRiotDto<AccountDto?>> GetAccountByRiotIdAsync(string gameName, string tagLine,bool IsBcg=false) =>
-            GetAsync<AccountDto>($"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{Uri.EscapeDataString(gameName)}/{Uri.EscapeDataString(tagLine)}");
-
+            GetAsync<AccountDto>($"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{Uri.EscapeDataString(gameName)}/{Uri.EscapeDataString(tagLine)}",IsBcg);
         public Task<ResponseRiotDto<SummonerDto?>> GetSummonerByPuuidAsync(string platform, string puuid,bool IsBcg=false) =>
-            GetAsync<SummonerDto>($"https://{platform}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}");
+            GetAsync<SummonerDto>($"https://{platform}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}",IsBcg);
 
         public Task<ResponseRiotDto<List<string>?>> GetRecentMatchIdsAsync(string region, string puuid, int count = 10,bool IsBcg=false) =>
-            GetAsync<List<string>>($"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}");
-        public Task<ResponseRiotDto<List<string>?>> GetMatchIdsForCrawlerAsync(string region, string puuid, int count = 20, int daysBack = 14,bool IsBcg=false)
+            GetAsync<List<string>>($"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}",IsBcg);
+        public Task<ResponseRiotDto<List<string>?>> GetMatchIdsForCrawlerAsync(
+            string region, string puuid, DateTime? since = null, int count = 100, bool IsBcg = false)
         {
-            var startTime = DateTimeOffset.UtcNow.AddDays(-daysBack).ToUnixTimeSeconds();
+            var startTime = new DateTimeOffset(since ?? DateTime.UtcNow.AddDays(-14)).ToUnixTimeSeconds();
 
             return GetAsync<List<string>>(
                 $"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids" +
-                $"?queue=420&startTime={startTime}&start=0&count={count}");
+                $"?queue=420&startTime={startTime}&start=0&count={count}", IsBcg);
         }
         public Task<ResponseRiotDto<List<RankDto?>>> GetRanksByPuuidAsync(string region, string puuid,bool IsBcg=false) =>
-            GetAsync<List<RankDto?>>($"https://{region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}");
+            GetAsync<List<RankDto?>>($"https://{region}.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}",IsBcg);
         public Task<ResponseRiotDto<RegionDto?>> GetActiveRegionByPuuidAsync(string puuid,bool IsBcg=false) =>
-            GetAsync<RegionDto?>($"https://europe.api.riotgames.com/riot/account/v1/region/by-game/lol/by-puuid/{puuid}");
+            GetAsync<RegionDto?>($"https://europe.api.riotgames.com/riot/account/v1/region/by-game/lol/by-puuid/{puuid}",IsBcg);
          public Task<ResponseRiotDto<List<RankDto>?>> GetSummonersByRegionQueueTierDivisionAsync(string region,string queue,string tier,string division,int page,bool IsBcg=false) =>
-            GetAsync<List<RankDto>?>($"https://{region}.api.riotgames.com/lol/league/v4/entries/{queue}/{tier}/{division}?page={page}");
+            GetAsync<List<RankDto>?>($"https://{region}.api.riotgames.com/lol/league/v4/entries/{queue}/{tier}/{division}?page={page}",IsBcg);
 
         public Task<ResponseRiotDto<MatchDto>> GetMatchAsync(string matchId,bool IsBcg=false)
-        => GetAsync<MatchDto>($"https://europe.api.riotgames.com/lol/match/v5/matches/{matchId}");
+        => GetAsync<MatchDto>($"https://europe.api.riotgames.com/lol/match/v5/matches/{matchId}",IsBcg);
             
     }
 }

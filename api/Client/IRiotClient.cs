@@ -16,8 +16,8 @@ namespace api.Client
         Task<ResponseRiotDto<List<RankDto?>>> GetRanksByPuuidAsync(string region, string puuid,bool IsBcg=false);
         Task<ResponseRiotDto<RegionDto?>> GetActiveRegionByPuuidAsync(string puuid,bool IsBcg=false);
         Task<ResponseRiotDto<MatchDto>> GetMatchAsync(string matchId,bool IsBcg=false);
-        Task<ResponseRiotDto<List<string>?>> GetMatchIdsForCrawlerAsync(string region, string puuid, int count = 20, int daysBack = 14,bool IsBcg=false);
-
+        Task<ResponseRiotDto<List<string>?>> GetMatchIdsForCrawlerAsync(
+            string region, string puuid, DateTime? since = null, int count = 100, bool IsBcg = false);
 
         Task<ResponseRiotDto<List<RankDto>?>> GetSummonersByRegionQueueTierDivisionAsync(string region,string queue,string tier,string division,int page,bool IsBcg=false);
 
