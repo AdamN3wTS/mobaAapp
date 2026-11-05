@@ -18,6 +18,12 @@ public class MatchDbService : IMatchDbService
         var match= await _dbContext.matches.FirstOrDefaultAsync(p=>p.MatchId==matchId,ct);
         return match==null ? false :true;
     }
+    public async Task<HashSet<string>> GetExistingMatchIdsAsync(List<string> ids, CancellationToken ct) =>
+    (await _dbContext.matches
+        .Where(m => ids.Contains(m.MatchId))
+        .Select(m => m.MatchId)
+        .ToListAsync(ct))
+    .ToHashSet();
     public async Task<bool> AddMatchAsync(Match match, CancellationToken ct)
     {
         

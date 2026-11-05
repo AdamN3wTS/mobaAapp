@@ -26,4 +26,17 @@ public class MatchParticipant
     public int Spell1Id { get; set; }              
     public int Spell2Id { get; set; }
     public List<int> ItemIds { get; set; } = new(); 
+    public int PrimaryStyleId { get; set; }
+    public int SubStyleId { get; set; }
+    public int KeystoneId { get; set; }
+
+    // Odłamki
+    public int OffensePerk { get; set; }
+    public int FlexPerk { get; set; }
+    public int DefensePerk { get; set; }
+
+    // Wszystkie 6 run
+    public List<ParticipantRunes> Runes { get; set; } = new();
+
 }
+

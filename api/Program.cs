@@ -24,6 +24,7 @@ builder.Services.AddScoped<ICrawlerService,CrawlerService>();
 builder.Services.AddScoped<ICrawlPlayerDbService,CrawlPlayerDbService>();
 builder.Services.AddScoped<IMatchDbService,MatchDbService>();
 builder.Services.AddScoped<IPlayerService,PlayerService>();
+builder.Services.AddScoped<IChampionService,ChampionService>();
 
 builder.Services.AddScoped<IStatsService,StatsService>();
 

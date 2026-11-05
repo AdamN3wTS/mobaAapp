@@ -27,7 +27,7 @@ public class StatsBcg : BackgroundService
                         
                         var _statsService= scope.ServiceProvider.GetRequiredService<IStatsService>();
                         await _statsService.GenerateStats(stoppingToken);
-                        await Task.Delay(TimeSpan.FromMinutes(20), stoppingToken); 
+                        await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken); 
                         
                     }
                 }

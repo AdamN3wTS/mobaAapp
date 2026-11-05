@@ -8,7 +8,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-emerald-300">{children}</body>
+      <body className="min-h-full flex flex-col bg-neutral-950">{children}</body>
     </html>
   );
 }

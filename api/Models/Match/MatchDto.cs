@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace api.Models.Match;
 public class MatchDto
@@ -53,6 +54,8 @@ public class MatchParticipantDto
     public int Item6 { get; set; }
 
     public bool GameEndedInEarlySurrender { get; set; }
+    [JsonPropertyName("perks")]
+    public PerksDto Perks { get; set; } = new();
 }
 
 public class MatchTeamDto

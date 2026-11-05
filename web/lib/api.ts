@@ -19,3 +19,13 @@ export async function getMatches(puuid: string, page = 1, pageSize = 20) {
   const req = await fetch(`${url}/player/${puuid}/matches?page=${page}&pageSize=${pageSize}`, { cache: "no-store" });
   return req.json();
 }
+export async function getChampion(name: string, position:string) {
+  if (!url) return null;
+  const req = await fetch(`${url}/test/champion/${name}/${position}`, { cache: "no-store" });
+  return req.json();
+}
+export async function getChampionPositions(name: string) {
+  if (!url) return null;
+  const req = await fetch(`${url}/test/champion/${name}`, { cache: "no-store" });
+  return req.json();
+}
