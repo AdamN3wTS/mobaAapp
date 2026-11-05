@@ -41,11 +41,36 @@ namespace Api.DTOs
         public bool IsWin { get; set; }
         public long GameDurationInSeconds { get; set; }
         public string QueueType { get; set; } = string.Empty;
+        public string Patch { get; set; } = string.Empty;
         public int LpChange { get; set; }
         public DateTimeOffset GameCreationTimestamp { get; set; }
         public string ChampionName { get; set; } = string.Empty;
         public int ChampionId { get; set; }
         public MatchPlayerStatsDTO Stats { get; set; } = new();
+        public List<MatchParticipantSummaryDTO> Participants { get; set; } = new();
+    }
+
+    public class MatchParticipantSummaryDTO
+    {
+        public bool IsCurrentPlayer { get; set; }
+        public string GameName { get; set; } = string.Empty;
+        public string TagLine { get; set; } = string.Empty;
+        public int ChampionId { get; set; }
+        public string ChampionName { get; set; } = string.Empty;
+        public string TeamPosition { get; set; } = string.Empty;
+        public int TeamId { get; set; }
+        public bool IsWin { get; set; }
+        public int Kills { get; set; }
+        public int Deaths { get; set; }
+        public int Assists { get; set; }
+        public int Summoner1Id { get; set; }
+        public int Summoner2Id { get; set; }
+        public List<MatchItemDTO> Items { get; set; } = new();
+    }
+
+    public class MatchItemDTO
+    {
+        public int ItemId { get; set; }
     }
 
     public class PaginatedMatchHistoryDTO
