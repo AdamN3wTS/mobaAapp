@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using api.IServices;
 
 namespace api.Stats;
@@ -14,6 +15,7 @@ public class StatsBcg : BackgroundService
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var time = int.Parse(Environment.GetEnvironmentVariable("STATS_TIME_MINUTES")!);
         _logger.LogInformation("Stats starting...");
         await Task.Yield();
         while (!stoppingToken.IsCancellationRequested)
@@ -27,7 +29,7 @@ public class StatsBcg : BackgroundService
                         
                         var _statsService= scope.ServiceProvider.GetRequiredService<IStatsService>();
                         await _statsService.GenerateStats(stoppingToken);
-                        await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken); 
+                        await Task.Delay(TimeSpan.FromMinutes(time), stoppingToken); 
                         
                     }
                 }
