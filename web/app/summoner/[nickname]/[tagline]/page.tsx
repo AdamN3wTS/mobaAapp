@@ -1,21 +1,20 @@
 import { FaUserCircle } from 'react-icons/fa';
 import { getPlayer, getMatches } from '@/lib/api';
-import ChampionIcon from '@/components/ChampionIcon';
+import MatchHistory from '@/components/MatchHistory';
+import type { MatchHistory as MatchHistoryData, PlayerProfile } from '@/types/summoner';
 
 interface SummonerPageProps {
   params: Promise<{ nickname: string; tagline: string }>;
 }
 export const instant = false;
 
-const time = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-
 export default async function SummonerPage({ params }: SummonerPageProps) {
   const resolvedParams = await params;
   const nickname = decodeURIComponent(resolvedParams.nickname);
   const tagline = decodeURIComponent(resolvedParams.tagline);
 
-  const player: any = await getPlayer(nickname, tagline);
-  const history: any = player?.puuid ? await getMatches(player.puuid, 1, 10) : null;
+  const player: PlayerProfile | null = await getPlayer(nickname, tagline);
+  const history: MatchHistoryData | null = player?.puuid ? await getMatches(player.puuid, 1, 10) : null;
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white p-4 sm:p-8">
@@ -31,7 +30,7 @@ export default async function SummonerPage({ params }: SummonerPageProps) {
             {player?.puuid ? (
               <div className="mt-2 flex flex-wrap gap-2 justify-center sm:justify-start text-sm">
                 <span className="bg-neutral-800 px-3 py-1 rounded-lg text-neutral-400">Poziom {player.summonerLevel}</span>
-                {player.ranks.map((r: any) => (
+                {player.ranks.map((r) => (
                   <span key={r.queueType} className="bg-neutral-800 px-3 py-1 rounded-lg">
                     <span className="text-blue-400 font-semibold">{r.queueType === 'RANKED_SOLO_5x5' ? 'Solo' : 'Flex'}</span>{' '}
                     {r.tier} {r.rank} · {r.leaguePoints} LP · {r.wins}W / {r.losses}L
@@ -46,23 +45,9 @@ export default async function SummonerPage({ params }: SummonerPageProps) {
 
         <div className="mt-10 border-t border-neutral-800 pt-8">
           <h2 className="text-2xl font-semibold mb-6">Historia Meczów</h2>
-          <div className="space-y-3">
-            {history?.matches?.map((m: any) => (
-              <div key={m.matchId} className={`bg-neutral-800/50 p-4 rounded-xl flex justify-between items-center gap-4 border-l-4 hover:bg-neutral-800 transition-colors ${m.isWin ? 'border-blue-500' : 'border-red-500'}`}>
-                <div className="flex items-center gap-4 min-w-0">
-                  <ChampionIcon championId={m.championId} name={m.championName} size={56} className="rounded-xl" />
-                  <div className="min-w-0">
-                    <div className={`font-bold ${m.isWin ? 'text-blue-400' : 'text-red-400'}`}>{m.isWin ? 'Zwycięstwo' : 'Porażka'}</div>
-                    <div className="text-sm text-neutral-400 truncate">{m.queueType} · {m.championName} · {time(m.gameDurationInSeconds)}</div>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-bold text-lg">{m.stats.kills} / {m.stats.deaths} / {m.stats.assists}</div>
-                  <div className="text-sm text-neutral-400">KDA · {m.stats.totalMinionsKilled} CS</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {history?.matches?.length
+            ? <MatchHistory matches={history.matches} />
+            : <p className="text-neutral-500">Brak meczów do wyświetlenia.</p>}
         </div>
       </div>
     </main>

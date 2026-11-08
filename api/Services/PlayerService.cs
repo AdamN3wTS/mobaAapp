@@ -86,6 +86,7 @@ public class PlayerService : IPlayerService
                     IsWin = p.Win,
                     GameDurationInSeconds = (int)m.Info.GameDuration,
                     QueueType = MapQueue(m.Info.QueueId),
+                    Patch = string.Join('.', m.Info.GameVersion.Split('.').Take(2)),
                     LpChange = 0, 
                     GameCreationTimestamp = DateTimeOffset.FromUnixTimeMilliseconds(m.Info.GameCreation),
                     ChampionName = p.ChampionName,
@@ -96,7 +97,36 @@ public class PlayerService : IPlayerService
                         Deaths = p.Deaths,
                         Assists = p.Assists,
                         TotalMinionsKilled = p.TotalMinionsKilled + p.NeutralMinionsKilled,
-                    }
+                    },
+                    Participants = m.Info.Participants.Select(participant => new MatchParticipantSummaryDTO
+                    {
+                        IsCurrentPlayer = participant.Puuid == puuid,
+                        GameName = participant.RiotIdGameName,
+                        TagLine = participant.RiotIdTagline,
+                        ChampionId = participant.ChampionId,
+                        ChampionName = participant.ChampionName,
+                        TeamPosition = participant.TeamPosition,
+                        TeamId = participant.TeamId,
+                        IsWin = participant.Win,
+                        Kills = participant.Kills,
+                        Deaths = participant.Deaths,
+                        Assists = participant.Assists,
+                        Summoner1Id = participant.Summoner1Id,
+                        Summoner2Id = participant.Summoner2Id,
+                        Items = new[]
+                        {
+                            participant.Item0,
+                            participant.Item1,
+                            participant.Item2,
+                            participant.Item3,
+                            participant.Item4,
+                            participant.Item5,
+                            participant.Item6
+                        }
+                        .Where(itemId => itemId != 0)
+                        .Select(itemId => new MatchItemDTO { ItemId = itemId })
+                        .ToList()
+                    }).ToList()
                 };
             })
             .Where(x => x != null)

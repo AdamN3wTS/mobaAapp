@@ -1,3 +1,5 @@
+import type { MatchHistory, PlayerProfile } from '@/types/summoner';
+
 const url = "http://localhost:5074/api"
 
 export async function getStats() {
@@ -7,14 +9,14 @@ export async function getStats() {
   return res.data ?? res;
 }
 
-export async function getPlayer(gameName: string, tagLine: string) {
+export async function getPlayer(gameName: string, tagLine: string): Promise<PlayerProfile | null> {
   if (!url) return null;
   const req = await fetch(`${url}/player/get/${gameName}/${tagLine}`, { cache: "no-store" });
   const res = await req.json();
   return res.data ?? res;
 }
 
-export async function getMatches(puuid: string, page = 1, pageSize = 20) {
+export async function getMatches(puuid: string, page = 1, pageSize = 20): Promise<MatchHistory | null> {
   if (!url) return null;
   const req = await fetch(`${url}/player/${puuid}/matches?page=${page}&pageSize=${pageSize}`, { cache: "no-store" });
   return req.json();
