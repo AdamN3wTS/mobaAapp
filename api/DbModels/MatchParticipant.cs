@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace api.DbModels;
 
 public class MatchParticipant
@@ -37,6 +39,10 @@ public class MatchParticipant
 
     // Wszystkie 6 run
     public List<ParticipantRunes> Runes { get; set; } = new();
+
+    // SCZEGOLOWE STATY NIE RUSZAC PLS
+    [NotMapped]
+    public int GoldEarned {get;set;} = 0;
 
 }
 

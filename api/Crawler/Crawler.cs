@@ -18,6 +18,8 @@ public class Crawler : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Crawler starting...");
+        var time = int.Parse(Environment.GetEnvironmentVariable("CRAWL_TIME_MINUTES")!);
+
         await Task.Yield();
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -37,7 +39,7 @@ public class Crawler : BackgroundService
                             var players = await _crawlerService.GetPlayerList("eun1",randomRank.Tier,"RANKED_SOLO_5x5",randomRank.Division,page,stoppingToken);
                         }
                         await _crawlerService.InsertMatches(stoppingToken);
-                        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); 
+                        await Task.Delay(TimeSpan.FromMinutes(time), stoppingToken); 
                         var playerCount2 = await _playerDbService.HowManyPlayersWhoDoesntCrowledOrCrowledLogTimeAgoAsync(stoppingToken);
                         if(playerCount<10)
                         {
