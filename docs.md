@@ -157,6 +157,13 @@ Ikony, nazwy run, itemów i spelli pochodzą z Data Dragon, z którego korzysta 
 Endpointy championów są na razie w `TestController` (`/api/test/champion/...`). To dość nowa funkcjonalność, jeszcze nie w 100% przetestowana. Po testach przejdą do normalnego kontrolera.
 
 ---
+### Zakładka /champion/page.tsx (Dave N)
+
+* Utworzono nową ścieżkę `/champion` (Server Component) wykorzystującą wbudowany w React `<Suspense>` do asynchronicznego pobierania danych.
+* Przygotowano interfejs tabeli Tier Listy (wzorowany na u.gg) w komponencie klienckim `TierListClient`.
+* Zintegrowano widok z API (`getStats()`). 
+* **Przetwarzanie danych z API:** Ponieważ dane o statystykach były podzielone w obiekcie, spłaszczono tablicę `statsPositions` ze statystykami per rola do jednej wspólnej listy, a następnie połączono ją z tablicą `statsBans` na podstawie `championId`.
+* Zaimplementowano interaktywne filtry ról (All Roles, Top, Jungle, Mid, ADC, Support), które mapują przyciski na poprawne wartości zwracane przez backend (TOP, JUNGLE, MIDDLE, BOTTOM, UTILITY).
 
 ## Największe trudności (Adam J)
 
