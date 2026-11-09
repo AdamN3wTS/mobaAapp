@@ -46,7 +46,7 @@ export default function TierListClient({ championsData, version }: TierListClien
   const bans = Array.isArray(championsData?.statsBans) ? championsData.statsBans : [];
 
 
-  const mergedData = allStats.map(stat => {
+  const mergedData = allStats.map((stat:any) => {
     const banInfo = bans.find((b: any) => b.championId === stat.championId);
     return {
       ...stat,
@@ -57,13 +57,13 @@ export default function TierListClient({ championsData, version }: TierListClien
 
   const filteredData = activeRole === "All Roles" 
     ? mergedData 
-    : mergedData.filter(champ => champ.teamPosition === roleMapping[activeRole]);
+    : mergedData.filter((champ:any) => champ.teamPosition === roleMapping[activeRole]);
 
 
   const sortedData = [...filteredData].sort((a, b) => (b.winRate || 0) - (a.winRate || 0));
 
   return (
-    <div className="min-h-screen bg-[#0b0b13] text-gray-200 p-6 font-sans">
+    <div className="min-h-screen bg-neutral-950 text-gray-200 p-6 font-sans">
       <div className="max-w-7xl mx-auto">
         
         {}
