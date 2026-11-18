@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using api.IDbServices;
 using api.Models;
 using api.Models.Account;
 using api.Models.Match;
@@ -17,7 +18,8 @@ namespace api.Client
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly RiotRateLimiter _rateLimiter;
-        public RiotClient(HttpClient httpClient, IConfiguration configuration,RiotRateLimiter riotRateLimiter)
+        private readonly IMatchDbService _matchDbSerice;
+        public RiotClient(IMatchDbService matchDbService,HttpClient httpClient, IConfiguration configuration,RiotRateLimiter riotRateLimiter)
         {
             _httpClient = httpClient;
             // Pobieranie ze zmiennych środowiskowych DotNetEnv / Systemu lub appsettings
@@ -26,6 +28,7 @@ namespace api.Client
                       ?? string.Empty;
             _httpClient.DefaultRequestHeaders.Add("X-Riot-Token",_apiKey);
             _rateLimiter=riotRateLimiter;
+            _matchDbSerice=matchDbService;
 
             
         }
@@ -77,12 +80,13 @@ namespace api.Client
 
         public Task<ResponseRiotDto<List<string>?>> GetRecentMatchIdsAsync(string region, string puuid, int count = 10,bool IsBcg=false) =>
             GetAsync<List<string>>($"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={count}",IsBcg);
-        public Task<ResponseRiotDto<List<string>?>> GetMatchIdsForCrawlerAsync(
+        public async Task<ResponseRiotDto<List<string>?>> GetMatchIdsForCrawlerAsync(
             string region, string puuid, DateTime? since = null, int count = 100, bool IsBcg = false)
         {
-            var startTime = new DateTimeOffset(since ?? DateTime.UtcNow.AddDays(-2)).ToUnixTimeSeconds();
+            var dd = await GetCurrentVersionAsync();
+            var startTime = await _matchDbSerice.GetFirstMatchInCurrnetPatch(dd!);
 
-            return GetAsync<List<string>>(
+            return await GetAsync<List<string>>(
                 $"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids" +
                 $"?queue=420&startTime={startTime}&start=0&count={count}", IsBcg);
         }
