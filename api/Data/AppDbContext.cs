@@ -28,5 +28,20 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<CrawlPlayer>(p=>p.HasKey(p=>p.Puuid));
+        modelBuilder.Entity<MatchParticipant>()
+        .HasOne(p=>p.Match)
+        .WithMany(o=>o.Participants)
+        .HasForeignKey(p=>p.MatchId)
+        .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<MatchBan>()
+        .HasOne(p=>p.Match)
+        .WithMany(o=>o.Bans)
+        .HasForeignKey(p=>p.MatchId)
+        .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ParticipantRunes>()
+        .HasOne(p=>p.MatchParticipant)
+        .WithMany(o=>o.Runes)
+        .HasForeignKey(p=>p.MatchParticipantId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }

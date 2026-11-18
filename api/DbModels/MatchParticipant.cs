@@ -41,8 +41,16 @@ public class MatchParticipant
     public List<ParticipantRunes> Runes { get; set; } = new();
 
     // SCZEGOLOWE STATY NIE RUSZAC PLS
-    [NotMapped]
     public int GoldEarned {get;set;} = 0;
+    public int TotalDamageDealtToChampions {get;set;} = 0;
+    public int VisionScore {get;set;} = 0;
+    public int WardsPlaced {get;set;} = 0;
+    public int WardsKilled {get;set;} = 0;
+    public int DetectorWardsPlaced {get;set;} = 0;
+    public int VisionWardsBoughtInGame {get;set;} = 0;
+    public int TurretKills {get;set;} = 0;
+    public int InhibitorKills {get;set;} = 0;
+
 
 }
 

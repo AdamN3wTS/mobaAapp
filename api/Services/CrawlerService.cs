@@ -93,6 +93,13 @@ public class CrawlerService : ICrawlerService
     }
     public async Task InsertMatches(CancellationToken ct)
     {
+        string? riotPatch = await _riotClient.GetCurrentVersionAsync();
+        string? dbPatch = (await _matchDbService.GetLatestMatch(ct))?.Patch;
+        var latestPatch = new[] { riotPatch, dbPatch }.Where(p => p != null)
+            .Select(p => Version.Parse(p!))
+            .Max()
+            ?.ToString(2);  
+        
         var players = await _crawlPlayerDbService.GetActivePlayersToInsertMatchesAsync("eun1", ct);
         var matchesIds = new List<string>();
 
@@ -131,8 +138,15 @@ public class CrawlerService : ICrawlerService
                     _logger.LogWarning("Nie udało się pobrać meczu {MatchId}: {Status}", matchId, matchInfo.StatusCode);
                     continue;
                 }
-
+                
                 var match = MatchMapper.ToEntity(matchInfo.Data);
+                if(latestPatch!=null){
+                    if (match.Patch != latestPatch)
+                    {
+                        _logger.LogInformation($"Pominalem mecz z patcha {match.Patch} aktaulny Patch: {latestPatch}");
+                        continue;
+                    }
+                }
                 await _matchDbService.AddMatchAsync(match, ct);
                 added++;
 
@@ -148,6 +162,6 @@ public class CrawlerService : ICrawlerService
             }
         }
 
-        _logger.LogInformation("Dodano {Added} nowych meczów", added);
+        _logger.LogInformation("Dodano {Added} nowych meczów z pobranych {}", added,toFetch.Count());
     }
 }

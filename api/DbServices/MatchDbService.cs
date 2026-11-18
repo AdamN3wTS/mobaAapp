@@ -33,5 +33,15 @@ public class MatchDbService : IMatchDbService
         
         
     }
+    public async Task DeleteMatchesBeforePatchAsync(string patch,CancellationToken ct)
+    {
+        await _dbContext.matches.Where(p=>p.Patch!=patch).ExecuteDeleteAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
+    }
+    public async Task<Match?> GetLatestMatch(CancellationToken ct)
+    {
+        var match = await _dbContext.matches.OrderByDescending(p=>p.PlayedAt).FirstOrDefaultAsync(ct);
+        return match;
+    }
 
 }

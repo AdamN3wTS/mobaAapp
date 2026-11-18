@@ -1,7 +1,9 @@
 using System;
 using System.Net;
+using api.Client;
 using api.Data;
 using api.DbModels;
+using api.IDbServices;
 using api.IServices;
 using api.Models;
 using api.Models.Stats;
@@ -14,10 +16,14 @@ namespace api.Services;
 public class StatsService : IStatsService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IRiotClient _riotClient;
+    private readonly IMatchDbService _matchDbService;
     private readonly ILogger<StatsService> _logger;
 
-    public StatsService(AppDbContext appDbContext, ILogger<StatsService> logger)
+    public StatsService(AppDbContext appDbContext, ILogger<StatsService> logger,IMatchDbService matchDbService,IRiotClient riotClient)
     {
+        _riotClient=riotClient;
+        _matchDbService=matchDbService;
         _dbContext = appDbContext;
         _logger = logger;
     }
@@ -77,10 +83,17 @@ public class StatsService : IStatsService
         
     public async Task GenerateStats(CancellationToken ct)
     {
+        string? riotPatch = await _riotClient.GetCurrentVersionAsync();
+        string? dbPatch = (await _matchDbService.GetLatestMatch(ct))?.Patch;
+        var latestPatch = new[] { riotPatch, dbPatch }.Where(p => p != null)
+            .Select(p => Version.Parse(p!))
+            .Max()
+            ?.ToString(2);  
+        if (latestPatch == null) return;
         _logger.LogInformation("Start generowania statystyk");
 
-        var totalMatches = await _dbContext.matches.CountAsync(ct);
-        _logger.LogInformation("Liczba meczów: {TotalMatches}", totalMatches);
+        var totalMatches = await _dbContext.matches.Where(p=>p.Patch==latestPatch).CountAsync(ct);
+        _logger.LogInformation("Liczba meczów: {TotalMatches} w Patchu: {latestPatch}", totalMatches,latestPatch);
 
         if (totalMatches == 0)
         {
@@ -88,9 +101,9 @@ public class StatsService : IStatsService
             return;
         }
 
-        var participants = await _dbContext.matchParticipants
+        var participants = await _dbContext.matchParticipants.Include(p=>p.Match)
             .AsNoTracking()
-            .Where(p => p.TeamPosition != "")
+            .Where(p => p.TeamPosition != "" && p.Match.Patch==latestPatch)
             .Select(p => new
             {
                 p.ChampionId,
@@ -112,8 +125,8 @@ public class StatsService : IStatsService
 
         _logger.LogInformation("Pobrano {Count} uczestników", participants.Count);
 
-        var bans = await _dbContext.matchBans
-            .Where(p => p.ChampionId != -1)
+        var bans = await _dbContext.matchBans.Include(p=>p.Match)
+            .Where(p => p.ChampionId != -1 && p.Match.Patch==latestPatch)
             .GroupBy(p => p.ChampionId)
             .Select(g => new
             {
@@ -134,6 +147,7 @@ public class StatsService : IStatsService
 
             var statsInfo = new ChampionStatsInfo
             {
+                Patch=latestPatch,
                 Id = Guid.NewGuid(),
                 ChampionId = group.Key.ChampionId,
                 ChampionName = group.First().ChampionName,
@@ -244,12 +258,12 @@ public class StatsService : IStatsService
         await _dbContext.championStatsInfos.AddRangeAsync(statsList, ct);
         await _dbContext.SaveChangesAsync(ct);
 
-        var deleted = await _dbContext.championStatsInfos
-            .Where(s => s.CreatedAt < now)
-            .ExecuteDeleteAsync(ct);
+        // var deleted = await _dbContext.championStatsInfos
+        //     .Where(s => s.CreatedAt < now)
+        //     .ExecuteDeleteAsync(ct);
 
         await transaction.CommitAsync(ct);
 
-        _logger.LogInformation("Statystyki zapisane, usunięto {Deleted} starych wpisów", deleted);
+        _logger.LogInformation("Statystyki zapisane");
     }
 }

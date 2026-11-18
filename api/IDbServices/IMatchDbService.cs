@@ -7,6 +7,9 @@ public interface IMatchDbService
 {
     public  Task<bool> IsMatchExistByMatchIdAsync(string matchId,CancellationToken ct);
     public  Task<bool> AddMatchAsync(Match match, CancellationToken ct);
+    public  Task<Match?> GetLatestMatch(CancellationToken ct);
     public  Task<HashSet<string>> GetExistingMatchIdsAsync(List<string> ids, CancellationToken ct);
+    public  Task DeleteMatchesBeforePatchAsync(string patch,CancellationToken ct);
+
 
 }

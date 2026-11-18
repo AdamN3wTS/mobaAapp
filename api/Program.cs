@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using api.IDbServices;
 using api.DbServices;
 using api.Stats;
+using api.DatabaseCleaner;
 
 DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,8 @@ builder.Services.AddScoped<ICrawlPlayerDbService,CrawlPlayerDbService>();
 builder.Services.AddScoped<IMatchDbService,MatchDbService>();
 builder.Services.AddScoped<IPlayerService,PlayerService>();
 builder.Services.AddScoped<IChampionService,ChampionService>();
+builder.Services.AddScoped<IDbCleanerService,DbCleanerService>();
+
 
 builder.Services.AddScoped<IStatsService,StatsService>();
 
@@ -38,8 +41,9 @@ if (Environment.GetEnvironmentVariable("CRAWLER_ENABLED") == "true")
 {
     builder.Services.AddHostedService<Crawler>();
     builder.Services.AddHostedService<StatsBcg>();
-
 }
+builder.Services.AddHostedService<DatabaseCleaner>();
+
 
 var app = builder.Build();
 app.UseCors();
