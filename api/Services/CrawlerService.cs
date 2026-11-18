@@ -150,7 +150,7 @@ public class CrawlerService : ICrawlerService
                 await _matchDbService.AddMatchAsync(match, ct);
                 added++;
 
-                await DiscoverNewPlayersAsync(match, ct);  
+                // await DiscoverNewPlayersAsync(match, ct);  
             }
             catch (OperationCanceledException)
             {
