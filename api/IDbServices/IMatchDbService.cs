@@ -10,6 +10,7 @@ public interface IMatchDbService
     public  Task<Match?> GetLatestMatch(CancellationToken ct);
     public  Task<HashSet<string>> GetExistingMatchIdsAsync(List<string> ids, CancellationToken ct);
     public  Task DeleteMatchesBeforePatchAsync(string patch,CancellationToken ct);
+    public  Task<long> GetFirstMatchInCurrnetPatch(string riotPatch);
 
 
 }
