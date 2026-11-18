@@ -20,6 +20,7 @@ namespace api.Client
             string region, string puuid, DateTime? since = null, int count = 100, bool IsBcg = false);
 
         Task<ResponseRiotDto<List<RankDto>?>> GetSummonersByRegionQueueTierDivisionAsync(string region,string queue,string tier,string division,int page,bool IsBcg=false);
+        public Task<string?> GetCurrentVersionAsync();
 
 
     }

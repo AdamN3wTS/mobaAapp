@@ -45,6 +45,10 @@ namespace api.Migrations
                     b.Property<int>("Games")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Patch")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<double>("PickRate")
                         .HasColumnType("double precision");
 
@@ -297,12 +301,21 @@ namespace api.Migrations
                     b.Property<int>("DefensePerk")
                         .HasColumnType("integer");
 
+                    b.Property<int>("DetectorWardsPlaced")
+                        .HasColumnType("integer");
+
                     b.Property<int>("FlexPerk")
                         .HasColumnType("integer");
 
                     b.Property<string>("GameName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("GoldEarned")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InhibitorKills")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsWin")
                         .HasColumnType("boolean");
@@ -353,6 +366,24 @@ namespace api.Migrations
                     b.Property<string>("TeamPosition")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("TotalDamageDealtToChampions")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TurretKills")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VisionScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VisionWardsBoughtInGame")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WardsKilled")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WardsPlaced")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

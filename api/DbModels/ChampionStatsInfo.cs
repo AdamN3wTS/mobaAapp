@@ -8,7 +8,7 @@ public class ChampionStatsInfo
     public int ChampionId {get;set;}
     public string ChampionName {get;set;}
     public int Games {get;set;} =0;
-
+    public string Patch {get;set;} = "";
     public double WinRate {get;set;}
     public double PickRate {get;set;}
     public double BanRate {get;set;}

@@ -80,7 +80,7 @@ namespace api.Client
         public Task<ResponseRiotDto<List<string>?>> GetMatchIdsForCrawlerAsync(
             string region, string puuid, DateTime? since = null, int count = 100, bool IsBcg = false)
         {
-            var startTime = new DateTimeOffset(since ?? DateTime.UtcNow.AddDays(-14)).ToUnixTimeSeconds();
+            var startTime = new DateTimeOffset(since ?? DateTime.UtcNow.AddDays(-2)).ToUnixTimeSeconds();
 
             return GetAsync<List<string>>(
                 $"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids" +
@@ -95,6 +95,18 @@ namespace api.Client
 
         public Task<ResponseRiotDto<MatchDto>> GetMatchAsync(string matchId,bool IsBcg=false)
         => GetAsync<MatchDto>($"https://europe.api.riotgames.com/lol/match/v5/matches/{matchId}",IsBcg);
-            
+        public async Task<string?> GetCurrentVersionAsync()
+        {
+            using var response = await _httpClient.GetAsync("https://ddragon.leagueoflegends.com/api/versions.json");
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            var list = await response.Content.ReadFromJsonAsync<List<string>>();
+            var version = list.First();
+            var versionTab = version.Split('.');
+            var ver = $"{versionTab[0]}.{versionTab[1]}";
+            return ver;
+        } 
     }
 }
