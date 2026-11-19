@@ -91,5 +91,9 @@ public class MatchDbService : IMatchDbService
         return new DateTimeOffset(match.PlayedAt).ToUnixTimeSeconds();
     }
 
-    
+    public async Task<int> GetMatchesCountAsync(CancellationToken ct)
+    {
+        var matchesCount = await _dbContext.matches.CountAsync(ct);
+        return matchesCount;
+    }
 }

@@ -7,7 +7,7 @@ namespace api.Helpers;
 public static class RandomRankGenerator
 {
     private static readonly string[] Divisions = ["I", "II", "III", "IV"];
-    private static readonly string[] Tiers = ["IRON", "BRONZE", "SILVER", "GOLD","PLATINUM","EMERALD","DIAMOND"];
+    private static readonly string[] Tiers = ["GOLD","PLATINUM","EMERALD","DIAMOND"];
 
     public static RandomRankDto GenerateRandomRank()
     {

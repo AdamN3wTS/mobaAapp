@@ -31,3 +31,10 @@ export async function getChampionPositions(name: string) {
   const req = await fetch(`${url}/test/champion/${name}`, { cache: "no-store" });
   return req.json();
 }
+export async function searchChampions(query: string, signal?: AbortSignal) {
+  if (!url) return null;
+  const req = await fetch(`${url}/test/champion-search/${encodeURIComponent(query)}`, { cache: "no-store", signal });
+  if (!req.ok) return null;
+  const res = await req.json();
+  return (res?.data ?? null) as { championId: number; championName: string; mainPosition: string }[] | null;
+}

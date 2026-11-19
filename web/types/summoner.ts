@@ -10,6 +10,7 @@ export interface RankedInfo {
 export interface PlayerProfile {
   puuid: string;
   summonerLevel: number;
+  profileIconId?: number;
   ranks: RankedInfo[];
 }
 

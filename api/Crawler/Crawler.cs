@@ -31,7 +31,14 @@ public class Crawler : BackgroundService
                     await using(var scope = _scopeFactory.CreateAsyncScope()){
                         var _crawlerService = scope.ServiceProvider.GetRequiredService<ICrawlerService>();
                         var _playerDbService = scope.ServiceProvider.GetRequiredService<ICrawlPlayerDbService>();
-
+                        var _matchDbService = scope.ServiceProvider.GetRequiredService<IMatchDbService>();
+                        var limit = int.Parse(Environment.GetEnvironmentVariable("MATCH_LIMIT")!);
+                        var count = await _matchDbService.GetMatchesCountAsync(stoppingToken);
+                        if (count >= limit)
+                        {
+                            await Task.Delay(TimeSpan.FromMinutes(time), stoppingToken);
+                            continue;
+                        }
                         var playerCount = await _playerDbService.HowManyPlayersWhoDoesntCrowledOrCrowledLogTimeAgoAsync(stoppingToken);
                         if(playerCount<10)
                         {
