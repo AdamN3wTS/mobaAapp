@@ -102,7 +102,6 @@ public class CrawlerService : ICrawlerService
         
         var players = await _crawlPlayerDbService.GetActivePlayersToInsertMatchesAsync("eun1", ct);
         var matchesIds = new List<string>();
-
         foreach (var player in players)
         {
             ct.ThrowIfCancellationRequested();
@@ -149,8 +148,9 @@ public class CrawlerService : ICrawlerService
                 }
                 await _matchDbService.AddMatchAsync(match, ct);
                 added++;
-
-                // await DiscoverNewPlayersAsync(match, ct);  
+                if(added<5){
+                    await DiscoverNewPlayersAsync(match, ct);  
+                }
             }
             catch (OperationCanceledException)
             {

@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 const tabs = [['ALL', 'Ogólnie'], ['TOP', 'Top'], ['JUNGLE', 'Jungle'], ['MIDDLE', 'Mid'], ['BOTTOM', 'Bot'], ['UTILITY', 'Support']];
 const lists = [['Win Rate', 'winRate'], ['Pick Rate', 'pickRate'], ['Ban Rate', 'banRate']];
-const MIN_GAMES = 5;
+const MIN_GAMES = 1;
 const pct = (v: number) => (v * 100).toFixed(1) + '%';
 const top5 = (arr: any[], k: string) => [...arr].sort((a, b) => b[k] - a[k]).slice(0, 5);
 

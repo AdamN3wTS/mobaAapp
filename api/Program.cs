@@ -36,14 +36,13 @@ builder.Services.AddSingleton<RiotRateLimiter>();
 
 builder.Services.AddHttpClient<IRiotClient,RiotClient>();
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod()));
+builder.Services.AddHostedService<DatabaseCleaner>();
 
 if (Environment.GetEnvironmentVariable("CRAWLER_ENABLED") == "true")
 {
     builder.Services.AddHostedService<Crawler>();
     builder.Services.AddHostedService<StatsBcg>();
 }
-builder.Services.AddHostedService<DatabaseCleaner>();
-
 
 var app = builder.Build();
 app.UseCors();
