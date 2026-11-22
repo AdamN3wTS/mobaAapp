@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using api.IDbServices;
 using api.IServices;
 
 namespace api.Stats;
@@ -26,7 +27,14 @@ public class StatsBcg : BackgroundService
                 try
                 {
                     await using(var scope = _scopeFactory.CreateAsyncScope()){
-                        
+                        var _matchDbService = scope.ServiceProvider.GetRequiredService<IMatchDbService>();
+                        var limit = int.Parse(Environment.GetEnvironmentVariable("MATCH_LIMIT")!);
+                        var count = await _matchDbService.GetMatchesCountAsync(stoppingToken);
+                        if (count >= limit)
+                        {
+                            await Task.Delay(TimeSpan.FromMinutes(time), stoppingToken);
+                            continue;
+                        }
                         var _statsService= scope.ServiceProvider.GetRequiredService<IStatsService>();
                         await _statsService.GenerateStats(stoppingToken);
                         await Task.Delay(TimeSpan.FromMinutes(time), stoppingToken); 
