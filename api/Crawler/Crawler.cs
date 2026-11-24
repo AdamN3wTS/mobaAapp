@@ -39,7 +39,7 @@ public class Crawler : BackgroundService
                         {
                              _logger.LogInformation($" Nie ide dalej :)");
 
-                            await Task.Delay(TimeSpan.FromMinutes(time), stoppingToken);
+                            await Task.Delay(TimeSpan.FromMinutes(100), stoppingToken);
                             continue;
                         }
                         _logger.LogInformation($" i dodaje ide dalej :)");
