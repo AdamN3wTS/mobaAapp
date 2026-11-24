@@ -12,8 +12,8 @@ export interface TierConfig {
 }
 
 export const DEFAULT_TIER_CONFIG: TierConfig = {
-  weights: { winRate: 0.6, pickRate: 0.25, banRate: 0.15 },
-  priorGames: 1000,
+  weights: { winRate: 0.6, pickRate: 0.2, banRate: 0.2 },
+  priorGames: 2000,
   minGames: 50,
   minPickRate: 0.005,
   thresholds: [

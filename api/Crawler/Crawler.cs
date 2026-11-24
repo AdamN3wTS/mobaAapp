@@ -34,11 +34,16 @@ public class Crawler : BackgroundService
                         var _matchDbService = scope.ServiceProvider.GetRequiredService<IMatchDbService>();
                         var limit = int.Parse(Environment.GetEnvironmentVariable("MATCH_LIMIT")!);
                         var count = await _matchDbService.GetMatchesCountAsync(stoppingToken);
+                        _logger.LogInformation($" limit {limit} count {count} limit<=count {limit<=count}");
                         if (count >= limit)
                         {
+                             _logger.LogInformation($" Nie ide dalej :)");
+
                             await Task.Delay(TimeSpan.FromMinutes(time), stoppingToken);
                             continue;
                         }
+                        _logger.LogInformation($" i dodaje ide dalej :)");
+
                         var playerCount = await _playerDbService.HowManyPlayersWhoDoesntCrowledOrCrowledLogTimeAgoAsync(stoppingToken);
                         if(playerCount<10)
                         {
